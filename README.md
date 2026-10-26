@@ -1,6 +1,6 @@
 # GPU 언락 — RTX 3060 12GB GA106 실험적 포트
 
-**2026년 10월 20일, RTX 3060 12GB LHR 실물 카드 한 장에서 펌웨어 실행·언락 후 NVIDIA 드라이버 인계·텐서 연산 성능 상승을 확인했습니다.** 단순 빌드나 모의 테스트 결과가 아니라 실제 GPU에서 얻은 결과입니다. 다만 다른 보드의 호환성, 장시간 안정성, 실제 애플리케이션의 성능 향상을 보장하는 범용 완성품은 아닙니다.
+**2026년 10월 20일, RTX 3060 12GB LHR 실물 카드 한 장에서 펌웨어 실행·언락 후 NVIDIA 드라이버 인계·텐서 연산 성능 상승을 확인했습니다.** 단순 빌드나 모의 테스트 결과가 아니라 실제 GPU에서 얻은 결과입니다. 다만 다른 보드의 호환성, 장시간 안정성, 실제 애플리케이션의 성능 향상을 보장하는 범용 완성품은 아닙니다. 2026년 10월 26일에는 다른 보드·커널·드라이버·VBIOS 조합의 두 번째 카드 한 장에서도 같은 결과를 확인했습니다(11절).
 
 이 포트는 `Zagitta/gpu-unlock`의 커밋 `0ebdb1c6308b6a2072be5bf04513472942541956`을 기반으로 합니다. 아래 실기 검증에는 이 저장소의 커밋 **`e58f77a227387614437da6f7fa618b88a7bb94d7`**으로 만든 모듈을 사용했습니다.
 
@@ -17,7 +17,7 @@
 - 사용자에게 안내하고 적용한 UEFI 설정: `Advanced → Chipset Configuration → Primary Graphics Adapter = Onboard`, `IGPU Multi-Monitor = Enabled`. 모니터는 메인보드 영상 출력 사용.
 - 실제 사용한 모듈의 SHA-256: `5e8d9e484fed2f3e140987eb4d5258b2637a513f316e07690d0ea4ae7c1a058c`.
 
-**검증 범위는 위 카드 한 장과 위 조합입니다.** 모든 GA106, 모든 LHR 카드, 모든 RTX 3060 12GB 또는 다른 드라이버에서도 된다는 의미는 아닙니다.
+**검증 범위는 위 카드 한 장과 위 조합, 그리고 11절의 두 번째 카드와 그 조합입니다.** 모든 GA106, 모든 LHR 카드, 모든 RTX 3060 12GB 또는 다른 드라이버에서도 된다는 의미는 아닙니다.
 
 ## 2. 실제 성능 비교
 
@@ -94,12 +94,12 @@ gpu_unlock: unlocked
 
 ## 4. 실기 검증의 범위와 안전 주의사항
 
-- **실제 검증 완료:** 이 카드에서 펌웨어 경로 실행, FLR 후 목표 선택자 유지, 정상 NVIDIA 인계, 제한된 출력 샘플 검사와 GEMM 성능 비교.
-- **미검증:** 다른 카드·보드·펌웨어·드라이버, 장시간 안정성, 다양한 입력의 전체 수치 검증, 실제 앱의 향상률, SS1만의 독립적 효과, 매 부팅 반복 재현성.
+- **실제 검증 완료:** 이 카드와 11절의 두 번째 카드에서 펌웨어 경로 실행, FLR 후 목표 선택자 유지, 정상 NVIDIA 인계, 제한된 출력 샘플 검사와 GEMM 성능 비교.
+- **미검증:** 1절과 11절 외의 다른 카드·보드·펌웨어·드라이버, 장시간 안정성, 다양한 입력의 전체 수치 검증, 실제 앱의 향상률, SS1만의 독립적 효과, 매 부팅 반복 재현성.
 - 성공한 시험은 사용자가 ‘재부팅’으로 보고했습니다. 그 사실만으로 모든 warm reboot를 지원하거나, 별도 AC 분리 성공 시험을 완료했다고 주장하지 않습니다. 모듈의 실제 cold-state 검사를 통과하는지가 중요하며, 이미 초기화된 카드는 거부될 수 있습니다.
 - 물리적 접근과 정상 Ubuntu 복구 항목을 확보하고 시험하십시오. GPU 정지나 화면 소실이 가능하며, 실패 시 전원을 완전히 꺼야 할 수 있습니다.
 - 실행 중인 NVIDIA 드라이버를 강제로 내리거나, BME 거부 검사·장치 식별·메모리 보호 검사를 삭제해 진입을 강제하지 마십시오.
-- 시험에서는 정상 커널·정상 initramfs·기본 부팅을 보존하고 별도 이미지와 1회 항목을 사용했습니다. 모듈이 udev/NVIDIA보다 먼저 실행되도록 실제 이미지의 순서와 내장된 모든 자산의 해시를 확인했습니다.
+- 시험에서는 정상 커널·정상 initramfs·기본 부팅을 보존하고 별도 이미지와 1회 항목을 사용했습니다. 모듈이 udev/NVIDIA보다 먼저 실행되도록 실제 이미지의 순서와 내장된 모든 자산의 해시를 확인했습니다. 11절의 두 번째 시험은 패키지가 설치한 일반 initramfs와 GRUB 1회 항목을 사용했으며, 그 서버의 initramfs에 nvidia 모듈이 없음을 확인한 뒤 진행했습니다.
 - **이 저장소의 문서 수정이 상시 자동 적용을 설정하지는 않습니다.** 검증 당시에도 1회 부팅을 사용했으며, 다음 일반 부팅에서 모듈이 자동 재실행된다고 가정하면 안 됩니다.
 - AC를 분리하려면 운영체제가 완전히 종료된 다음에 하십시오. UEFI 설정이 초기화되는 시스템에서는 주 그래픽 설정이 유지됐는지 먼저 확인하십시오.
 
@@ -209,7 +209,62 @@ nvidia-smi
 
 이 모듈은 V67/PLM 기법을 NVIDIA 드라이버 연결 전에 실행하고 SS0 `0x88888888`, SS1 `0x8`을 적용한 뒤 FLR을 수행합니다. UEFI 애플리케이션도, 수정된 NVIDIA 드라이버도 아닙니다. 이번 결과는 이 조합의 효과이며 **SS1의 독립적인 효과는 분리 검증하지 않았습니다.**
 
-## 11. 검증 자료와 라이선스
+## 11. 두 번째 실기 검증: Ubuntu 24.04 / 커널 6.8 / NVIDIA 590 2-GPU 서버
+
+**2026년 10월 26일(UTC), 다른 보드·커널·드라이버·VBIOS 조합의 RTX 3060 12GB LHR 두 번째 카드에서 같은 모듈 소스로 언락과 GEMM 성능 상승을 확인했습니다.** 1절의 시험과 독립적인 한 번의 부팅 결과이며, 아래 명시한 조합에 한합니다.
+
+### 11.1 환경
+
+- 그래픽카드(대상): NVIDIA RTX 3060 12GB LHR, GA106, `10de:2504`, 리비전 `a1`, 서브시스템 `10de:1536`, VBIOS `94.06.2F.00.89`, VRAM 12,288 MiB, PCI 주소 `0000:04:00.0`, `boot_vga=0`. UEFI에서 Resizable BAR가 켜져 있어 BAR1이 16 GiB였습니다.
+- 그래픽카드(대조): GA104 기반 RTX 3060 `10de:2487` 리비전 `a1`(Gigabyte `1458:4074`), PCI 주소 `0000:01:00.0`, `boot_vga=1`로 화면 담당. 이 포트의 대상이 아니며 `targets=`에 넣지 않았습니다.
+- CPU / 메인보드: AMD Ryzen 5 5600G / BIOSTAR B550M-SILVER (UEFI 5.17). 내장그래픽은 UEFI에서 비활성화되어 PCI에 보이지 않았습니다.
+- 운영체제 / 커널: Ubuntu 24.04.4 LTS / `6.8.0-147-generic`. initramfs-tools `0.142ubuntu25.8`.
+- NVIDIA 드라이버: **590.44.01 proprietary 커널 모듈**(NVIDIA CUDA apt 저장소의 `cuda-drivers`), GSP 펌웨어 사용(`nvidia-smi`의 GSP Firmware Version 590.44.01). 비교 시험에서 드라이버를 교체하지 않았습니다.
+- Secure Boot: 비활성. dkms가 서버 MOK 키로 서명했지만 커널에는 그 키가 없어 `module verification failed` 메시지와 함께 taint 상태로 로드됐습니다.
+- 모듈 소스: 이 저장소의 커밋 `b977a67fd8229500360e715e1714c2f01697babb`. `kernel/` 아래 코드는 1절의 검증 커밋 `e58f77a227387614437da6f7fa618b88a7bb94d7`과 동일하고, 그 사이 변경은 `firmware/` 문서뿐입니다.
+- 패키지: 서버에서 `make deb`로 생성한 `gpu-unlock-dkms_1.0.0_all.deb`와 `gpu-unlock-firmware_1.0.0_all.deb`. Python 3.12.3, zstd 1.5.5, debhelper 13.14.1ubuntu5이며 `dh-sequence-dkms`는 NVIDIA 저장소의 `dh-dkms 1:3.3.0`이 제공했습니다. 빌드 중 호스트 테스트 5건이 통과했고, 생성된 펌웨어 5개의 SHA-256은 고정값과 일치했습니다.
+- 실제 사용한 모듈: dkms가 `6.8.0-147-generic`용으로 빌드한 `gpu_unlock.ko`, SHA-256 `20fce4a9f69afda689690c25de3c023fc9595c5e5fdd6512b0de0fadfb5ab98f`(압축 해제 기준, 설치 파일은 `gpu_unlock.ko.zst`).
+- 부팅 방식: 8절의 패키지 설치 그대로 initramfs-tools `modules.d` 경로를 사용했고 별도 시험 이미지는 만들지 않았습니다. initramfs를 풀어 확인한 `conf/modules`의 첫 항목이 `gpu_unlock`이었고, 이 서버의 initramfs에는 nvidia 모듈이 없어 udev가 먼저 nvidia를 연결할 수 없는 구성이었습니다. 1회 시험은 `/etc/grub.d/40_custom`에 같은 커널·initrd에 옵션만 더한 항목을 추가하고 `grub-reboot`로 선택했습니다.
+- 명령행 옵션: `gpu_unlock.targets=0000:04:00.0 gpu_unlock.experimental_ga106=1`.
+
+### 11.2 커널 로그
+
+warm reboot 한 번으로 진입했고, 초기 PCI Command는 `0x3`(BME 꺼짐)이라 3.1절의 진입 차단이 발생하지 않았습니다. 대상 카드가 부팅 VGA가 아니었기 때문으로 해석하며, 이 보드의 펌웨어가 부팅 VGA가 아닌 카드의 BME를 켜지 않는다는 관찰 이상의 결론은 내리지 않습니다.
+
+```text
+claim: command=0x3 capability=0x10688de1 BAR_mask=0x4b
+FWSEC: PROM bytes=1048576 signature=0xaa55
+FWSEC signature selection: versions=0x7 fuse_version=2 sig_bytes=384
+FWSEC result: scratch=0x0 expected_hi16=0
+pre-FLR selectors: ss0=0x88888888 expected=0x88888888 ss1=0x8 expected=0x8
+post-FLR GFW result: error=0 pci=0x250410de plm=0x8b8f boot=0x3ff cpuctl=0x10 budget_us=2050000
+post-FLR SEC2 reset released, GSP halted, BME=0 pending=0 WPR2=1ffffe00:00000000 SS0=88888888 SS1=00000008
+gpu_unlock: unlocked
+```
+
+이어서 NVIDIA 590.44.01이 두 카드를 정상 인계했고, 측정 후까지 Xid 오류는 없었습니다.
+
+### 11.3 성능 비교
+
+1절의 측정기는 저장소에 포함되지 않아 같은 방식의 별도 호스트 프로그램으로 측정했습니다. `cublasGemmEx`, 행렬 `8192 × 8192 × 8192`, FP16/BF16 입력에 FP32 누산·출력, TF32는 `CUBLAS_COMPUTE_32F_FAST_TF32`, 라운드당 20회 × 5라운드의 중앙값, cuBLAS 12.0.2(Ubuntu `nvidia-cuda-toolkit` 12.0), 전력 제한 170 W입니다. 입력은 모두 1이고 각 자료형에서 출력 앞 16개가 `8192`인지 검사해 통과했습니다. 적용 전 측정은 재부팅 직전 같은 드라이버에서 했고, 두 측정 모두 GPU를 쓰는 다른 프로세스를 멈춘 상태였습니다.
+
+대상 카드 `0000:04:00.0`:
+
+| 연산 | 적용 전 TFLOPS | 적용 후 TFLOPS | 배율 |
+|---|---:|---:|---:|
+| FP16 입력 / FP32 누산 | 27.350 | 49.301 | 1.803배 |
+| BF16 입력 / FP32 누산 | 27.217 | 49.930 | 1.835배 |
+| TF32 | 13.603 | 26.257 | 1.930배 |
+
+비적용 대조 카드 `0000:01:00.0`(GA104)은 같은 재부팅 전후 FP16 28.728 → 28.628, BF16 28.728 → 28.627, TF32 14.355 → 14.307 TFLOPS로 변화가 없었습니다. 상승은 대상 카드에만 나타났습니다.
+
+### 11.4 범위와 한계
+
+- 이 결과로 추가 확인된 것: 커널 6.8 / Ubuntu 24.04, 590.44.01 proprietary(GSP) 드라이버 인계, NVIDIA `10de:1536` 보드와 VBIOS `94.06.2F.00.89`, Resizable BAR 활성 상태, 부팅 VGA가 다른 외장 GPU인 2-GPU 구성, 패키지의 initramfs-tools 경로.
+- 여전히 미검증: 매 부팅 반복 재현성(이 시험도 한 번의 부팅), 장시간 안정성, 다른 보드·VBIOS·드라이버, AC 분리 후 cold boot. 시험 후 이 서버의 `GRUB_CMDLINE_LINUX_DEFAULT`에 같은 옵션을 넣어 상시 적용으로 바꿨지만, 그 뒤 부팅의 결과는 아직 기록하지 않았습니다.
+- 4절의 안전 주의사항은 그대로 적용됩니다.
+
+## 12. 검증 자료와 라이선스
 
 로컬 시험 자료는 다음 경로에 보존했습니다. `build/` 아래 자료는 생성물이며, 원자료 전체가 이 소스 저장소에 배포된다는 의미는 아닙니다.
 
@@ -217,5 +272,6 @@ nvidia-smi
 - 적용 후: `build/benchmarks/post-unlock-5ca2e7cf.json`.
 - 계산된 비교: `build/benchmarks/comparison-5ca2e7cf.json`.
 - 해당 부팅의 전체 커널 로그와 진단 결과: `build/deploy/combined_trial/boot-5ca2e7cf-2558-4543-a769-2681e78eb76f/`.
+- 11절 두 번째 시험의 커널 로그와 측정 출력은 서버 밖에 별도로 보관했으며 이 저장소에 포함하지 않았습니다.
 
 커널 모듈과 로컬 패키징은 GPL-2.0-only입니다. 생성 페이로드는 고정된 CMP 참조에서 유래하며, NVIDIA 펌웨어는 자체 조건을 따릅니다. [firmware/NOTICE.md](firmware/NOTICE.md)와 `licenses/`의 고지를 확인하십시오. 설명 문서는 한글로 작성하되 명령어·식별자·파일명·저작권 및 라이선스 원문은 변경하지 않습니다.

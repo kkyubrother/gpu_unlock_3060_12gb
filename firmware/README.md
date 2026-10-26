@@ -7,7 +7,7 @@
 - `generate_v67.py`: 패키지에서 `gsp_ga10x.bin`과 NVIDIA 라이선스를 추출하고, 64,000바이트의 `v67-ga102-610.43.03.bin`을 생성합니다.
 - `extract_boot_assets.py`: 소스 아카이브에서 `booter_load_ga102.bin`, `gsp_boot_ga102.bin`, `gsp_boot_desc_ga102.bin`을 생성합니다.
 
-두 스크립트는 출력 파일을 기록하기 전에 모든 입력과 생성 결과를 고정된 SHA-256과 비교합니다. zstd 형식의 tar 아카이브를 처리하려면 Python 3.14 이상이 필요합니다. 출처와 라이선스는 [NOTICE.md](NOTICE.md)를 확인하십시오.
+두 스크립트는 출력 파일을 기록하기 전에 모든 입력과 생성 결과를 고정된 SHA-256과 비교합니다. zstd 형식의 패키지는 `generate_v67.py`가 `zstd -dc` 명령으로 풀어 스트림으로 읽으므로 Python 자체의 zstd 지원은 필요 없고, `zstd` 실행 파일이 PATH에 있어야 합니다. Ubuntu 24.04의 Python 3.12.3과 zstd 1.5.5에서 확인했습니다. 출처와 라이선스는 [NOTICE.md](NOTICE.md)를 확인하십시오.
 
 ## GA106 실기 검증과의 관계
 
